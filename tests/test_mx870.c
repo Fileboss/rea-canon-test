@@ -82,6 +82,31 @@ static int write_file(void *ctx, const void *buf, size_t len)
   return fwrite(buf, 1, len, (FILE *)ctx) == len ? 0 : -1;
 }
 
+/* Occurrences of a byte pattern in a file (small command sequences only). */
+static int count_in_file(const char *path, const uint8_t *pat, size_t len)
+{
+  FILE *f = fopen(path, "rb");
+  uint8_t *data;
+  long size;
+  int n = 0;
+
+  if (!f)
+    return -1;
+  fseek(f, 0, SEEK_END);
+  size = ftell(f);
+  rewind(f);
+  if (!(data = malloc((size_t)size)) || fread(data, 1, (size_t)size, f) != (size_t)size) {
+    free(data);
+    fclose(f);
+    return -1;
+  }
+  fclose(f);
+  for (long i = 0; i + (long)len <= size; i++)
+    n += !memcmp(data + i, pat, len);
+  free(data);
+  return n;
+}
+
 /* Test chart: CMY/RGB bars, a gray ramp, black text-like strokes, blank gap. */
 static void chart_pixel(int x, int y, int w, int h, uint8_t *rgb)
 {
@@ -112,7 +137,8 @@ static void chart_pixel(int x, int y, int w, int h, uint8_t *rgb)
 }
 
 static int make_sample(const char *path, const char *paper, const char *media,
-                       mx870_quality_t quality, mx870_color_t color, int borderless, int pages)
+                       mx870_quality_t quality, mx870_color_t color, int borderless,
+                       mx870_duplex_t duplex, int pages)
 {
   FILE *f = fopen(path, "wb");
   mx870_job_t *job;
@@ -128,6 +154,7 @@ static int make_sample(const char *path, const char *paper, const char *media,
   s.quality = quality;
   s.color = color;
   s.borderless = borderless;
+  s.duplex = duplex;
 
   for (int p = 0; p < pages && !rc; p++) {
     if (mx870_page_start(job, &s)) {
@@ -175,13 +202,26 @@ int main(int argc, char **argv)
   CHECK(mx870_find_media("stationery") != NULL);
 
   snprintf(path, sizeof(path), "%s/sample_a4_plain_std.bin", outdir);
-  CHECK(!make_sample(path, "iso_a4_210x297mm", "stationery", MX870_QUALITY_STANDARD, MX870_COLOR_RGB, 0, 2));
+  CHECK(!make_sample(path, "iso_a4_210x297mm", "stationery", MX870_QUALITY_STANDARD, MX870_COLOR_RGB, 0, MX870_DUPLEX_NONE, 2));
   snprintf(path, sizeof(path), "%s/sample_letter_plain_draft_gray.bin", outdir);
-  CHECK(!make_sample(path, "na_letter_8.5x11in", "stationery", MX870_QUALITY_DRAFT, MX870_COLOR_GRAY, 0, 1));
+  CHECK(!make_sample(path, "na_letter_8.5x11in", "stationery", MX870_QUALITY_DRAFT, MX870_COLOR_GRAY, 0, MX870_DUPLEX_NONE, 1));
   snprintf(path, sizeof(path), "%s/sample_4x6_photo_high_borderless.bin", outdir);
-  CHECK(!make_sample(path, "na_index-4x6_4x6in", "photographic-glossy", MX870_QUALITY_HIGH, MX870_COLOR_RGB, 1, 1));
+  CHECK(!make_sample(path, "na_index-4x6_4x6in", "photographic-glossy", MX870_QUALITY_HIGH, MX870_COLOR_RGB, 1, MX870_DUPLEX_NONE, 1));
   snprintf(path, sizeof(path), "%s/sample_a4_plain_high.bin", outdir);
-  CHECK(!make_sample(path, "iso_a4_210x297mm", "stationery", MX870_QUALITY_HIGH, MX870_COLOR_RGB, 0, 1));
+  CHECK(!make_sample(path, "iso_a4_210x297mm", "stationery", MX870_QUALITY_HIGH, MX870_COLOR_RGB, 0, MX870_DUPLEX_NONE, 1));
+
+  /* Long-edge duplex: ESC ($ once per job, ESC (s on every page, ESC (u on back sides only. */
+  snprintf(path, sizeof(path), "%s/sample_a4_plain_duplex.bin", outdir);
+  CHECK(!make_sample(path, "iso_a4_210x297mm", "stationery", MX870_QUALITY_STANDARD, MX870_COLOR_RGB, 0,
+                     MX870_DUPLEX_LONG_EDGE, 2));
+  {
+    static const uint8_t esc_dollar[] = {0x1b, '(', '$', 9, 0}, esc_s[] = {0x1b, '(', 's', 1, 0, 0},
+                         esc_u[] = {0x1b, '(', 'u', 1, 0, 1};
+
+    CHECK(count_in_file(path, esc_dollar, sizeof(esc_dollar)) == 1);
+    CHECK(count_in_file(path, esc_s, sizeof(esc_s)) == 2);
+    CHECK(count_in_file(path, esc_u, sizeof(esc_u)) == 1);
+  }
 
   /* Borderless is not offered for A5 in the Windows templates. */
   {

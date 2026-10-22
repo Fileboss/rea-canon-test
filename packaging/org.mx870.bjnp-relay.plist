@@ -3,6 +3,7 @@
 <!-- Classic CUPS driver over the network: relays socket://127.0.0.1:9870 to the
      printer over BJNP. Replace PRINTER_IP, then:
      sudo cp org.mx870.bjnp-relay.plist /Library/LaunchDaemons/
+     sudo install -o nobody -g nobody -m 644 /dev/null /var/log/mx870-bjnp-relay.log
      sudo launchctl bootstrap system /Library/LaunchDaemons/org.mx870.bjnp-relay.plist -->
 <plist version="1.0">
 <dict>
@@ -14,6 +15,9 @@
     <string>PRINTER_IP</string>
     <string>9870</string>
   </array>
+  <!-- No privileges needed: it listens on 127.0.0.1:9870 and talks BJNP. -->
+  <key>UserName</key><string>nobody</string>
+  <key>GroupName</key><string>nobody</string>
   <key>RunAtLoad</key><true/>
   <key>KeepAlive</key><true/>
   <key>StandardErrorPath</key><string>/var/log/mx870-bjnp-relay.log</string>

@@ -14,10 +14,13 @@ Windows 1.06 (voir [docs/protocole-mx870.md](docs/protocole-mx870.md)).
 
 ## Apportez votre propre pilote Canon
 
-Ce dépôt ne contient **aucun fichier Canon**, ni données extraites des fichiers Canon. Le
-pilote a besoin des réglages d'impression de l'imprimante (30 modes papier × qualité,
-géométrie exacte de 21 formats) ; ils sont **générés sur votre machine, au moment de la
-construction**, à partir de votre propre copie de l'installeur Windows officiel :
+Ce dépôt ne contient **aucun fichier Canon** ni aucune des tables du pilote. Seuls quelques
+faits nécessaires à l'interopérabilité y figurent : codes de format, de support et de bac,
+dimensions des papiers (dans `src/libmx870/tables.c` et `docs/protocole-mx870.md`), pour la
+plupart également publiés par Gutenprint. Le pilote a besoin en plus des réglages
+d'impression de l'imprimante (30 modes papier × qualité, marges exactes de 21 formats) ; ils
+sont **générés sur votre machine, au moment de la construction**, à partir de votre propre
+copie de l'installeur Windows officiel :
 
 1. Téléchargez chez Canon le fichier `mp68-win-mx870-1_06-ea24.exe`
    (*MX870 series MP Driver Ver.1.06 (Windows)*), par exemple sur
@@ -117,6 +120,9 @@ build/          tout ce qui est généré, y compris les fichiers Canon extraits
 ## Crédits
 
 - [Gutenprint](https://gimp-print.sourceforge.io) : référence pour recouper le sens des
-  commandes ; les messages XML IVEC de début et de fin de travail en sont repris.
+  commandes ; les messages XML IVEC de début et de fin de travail en sont repris. Ce sont
+  des chaînes de protocole fixées par l'imprimante, reprises à l'identique parce qu'elle
+  les attend ainsi, et non du code de Gutenprint (sous licence GPL) : aucune partie de son
+  code n'est incluse dans ce projet.
 - [PAPPL](https://github.com/michaelrsweet/pappl) (Michael R Sweet) pour l'application AirPrint.
 - Licence : MIT (voir `LICENSE`).

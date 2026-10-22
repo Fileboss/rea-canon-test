@@ -251,12 +251,20 @@ static void set_error(bjnp_job_t *job, const char *fmt, ...)
   va_end(ap);
 }
 
-/* Copy an ASCII/UTF-8 string as UTF-16LE (as the Windows port monitor does). */
+/*
+ * Copy a UTF-8 string as UTF-16LE (as the Windows port monitor does). Only
+ * ASCII is kept; each other character becomes one '?'.
+ */
 static void put_utf16(uint8_t *dst, size_t size, const char *s)
 {
-  for (size_t i = 0; s && *s && i + 2 <= size - 2; s++, i += 2) {
-    dst[i] = (uint8_t)(*s & 0x7f ? *s : '?');
+  for (size_t i = 0; s && *s && i + 2 <= size - 2; s++) {
+    uint8_t c = (uint8_t)*s;
+
+    if ((c & 0xc0) == 0x80) /* UTF-8 continuation byte */
+      continue;
+    dst[i] = c & 0x80 ? '?' : c;
     dst[i + 1] = 0;
+    i += 2;
   }
 }
 

@@ -218,6 +218,7 @@ si l'imprimante rejette un travail :
 | `ESC (r 64` | envoyé (Gutenprint) | absent des gabarits Windows |
 | Lignes par bloc | 16 à 600 dpi, 8 à 300 dpi | Windows utilise 8 dans certains modes 600 dpi |
 | Marge haute 118 | supposée liée au recto-verso | sens réel inconnu |
+| Recto-verso | `ESC ($` une fois par travail, `ESC (s 00` à chaque page, `ESC (u 01` sur les versos en bord long ; variante de mode choisie par `tools/gen_modes.py` (heuristique) | vérifié seulement par `bjdump` (`sample_a4_plain_duplex.bin`) |
 | Mode 7 (Pro II qualité 4) | exclu | plans supplémentaires `C|0x80`… non décodés |
 
 Réseau (BJNP, §4.6) : validé contre `tests/fake_bjnp.py`, écrit d'après la même lecture du

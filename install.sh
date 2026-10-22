@@ -15,8 +15,6 @@
 #   --no-install      build and test only, install nothing
 set -eu
 
-cd "$(dirname "$0")"
-
 usage() {
   sed -n '2,17p' "$0" | sed 's/^# \{0,1\}//'
   exit 2
@@ -39,6 +37,10 @@ while [ $# -gt 0 ]; do
   shift
 done
 [ -n "$exe" ] || usage
+# Resolve the installer path against the caller's directory before moving to the repo.
+[ -f "$exe" ] || { echo "error: $exe not found" >&2; exit 1; }
+exe="$(cd "$(dirname "$exe")" && pwd)/$(basename "$exe")"
+cd "$(dirname "$0")"
 
 step() { printf '\n\033[1m==> %s\033[0m\n' "$*"; }
 die() { echo "error: $*" >&2; exit 1; }
@@ -88,6 +90,8 @@ if [ -n "$printer" ] && [ $want_app = 0 ]; then
   sed "s/PRINTER_IP/$printer/" packaging/org.mx870.bjnp-relay.plist > build/org.mx870.bjnp-relay.plist
   sudo launchctl bootout system "$plist" 2> /dev/null || true
   sudo install -o root -g wheel -m 644 build/org.mx870.bjnp-relay.plist "$plist"
+  # The relay runs as nobody (see the plist): give it its log file.
+  sudo install -o nobody -g nobody -m 644 /dev/null /var/log/mx870-bjnp-relay.log
   sudo launchctl bootstrap system "$plist"
   lpadmin -p MX870 -E -v socket://127.0.0.1:9870 \
     -P "/Library/Printers/PPDs/Contents/Resources/Canon MX870 libmx870.ppd.gz"

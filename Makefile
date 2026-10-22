@@ -12,6 +12,7 @@
 #   make net        BJNP against tests/fake_bjnp.py
 #   make app-test   PAPPL application against tests/fake_bjnp.py
 #   sudo make install
+#   sudo make uninstall   (also removes the MX870 queue and the BJNP relay)
 
 CC      ?= cc
 CFLAGS  ?= -O2 -g
@@ -125,7 +126,12 @@ install: all
 	chown root:wheel "$(PPDDIR)/Canon MX870 libmx870.ppd.gz"
 	chmod 644 "$(PPDDIR)/Canon MX870 libmx870.ppd.gz"
 
+# Also removes what install.sh --printer sets up: the "MX870" queue and the BJNP relay.
+RELAY_PLIST := /Library/LaunchDaemons/org.mx870.bjnp-relay.plist
 uninstall:
+	-lpadmin -x MX870 2> /dev/null
+	-launchctl bootout system $(RELAY_PLIST) 2> /dev/null
+	rm -f $(RELAY_PLIST) /var/log/mx870-bjnp-relay.log
 	rm -rf $(PREFIX) "$(PPDDIR)/Canon MX870 libmx870.ppd.gz"
 
 # Keeps the extracted Canon assets and the PAPPL build.
