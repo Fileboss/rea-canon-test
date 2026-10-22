@@ -1,0 +1,4 @@
+# Binaires Canon propriétaires : ne jamais publier
+*.exe
+vendor/
+build/

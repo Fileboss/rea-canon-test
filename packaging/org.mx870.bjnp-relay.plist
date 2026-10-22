@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Classic CUPS driver over the network: relays socket://127.0.0.1:9870 to the
+     printer over BJNP. Replace PRINTER_IP, then:
+     sudo cp org.mx870.bjnp-relay.plist /Library/LaunchDaemons/
+     sudo launchctl bootstrap system /Library/LaunchDaemons/org.mx870.bjnp-relay.plist -->
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>org.mx870.bjnp-relay</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/Library/Printers/Canon-MX870/bin/mx870-bjnp</string>
+    <string>relay</string>
+    <string>PRINTER_IP</string>
+    <string>9870</string>
+  </array>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><true/>
+  <key>StandardErrorPath</key><string>/var/log/mx870-bjnp-relay.log</string>
+</dict>
+</plist>

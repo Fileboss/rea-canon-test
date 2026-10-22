@@ -1,0 +1,26 @@
+# IPP Print-Job: 4x6 borderless photo (zero margins), as an AirPrint client would send it.
+{
+  NAME "Print 4x6 borderless on photo paper"
+  OPERATION Print-Job
+  GROUP operation-attributes-tag
+  ATTR charset attributes-charset utf-8
+  ATTR naturalLanguage attributes-natural-language en
+  ATTR uri printer-uri $uri
+  ATTR name requesting-user-name test
+  ATTR mimeMediaType document-format image/png
+  GROUP job-attributes-tag
+  ATTR collection media-col {
+    MEMBER collection media-size {
+      MEMBER integer x-dimension 10160
+      MEMBER integer y-dimension 15240
+    }
+    MEMBER integer media-bottom-margin 0
+    MEMBER integer media-left-margin 0
+    MEMBER integer media-right-margin 0
+    MEMBER integer media-top-margin 0
+    MEMBER keyword media-type photographic-glossy
+  }
+  ATTR enum print-quality 5
+  FILE $filename
+  STATUS successful-ok
+}

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- AirPrint printer application, per user:
+     cp org.mx870.app.plist ~/Library/LaunchAgents/
+     launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/org.mx870.app.plist -->
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>org.mx870.app</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/Library/Printers/Canon-MX870/bin/mx870-app</string>
+    <string>server</string>
+    <string>-o</string><string>server-port=8870</string>
+  </array>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><true/>
+</dict>
+</plist>
