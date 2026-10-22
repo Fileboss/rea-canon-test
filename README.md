@@ -1,5 +1,7 @@
 # Pilote Canon PIXMA MX870 pour macOS (Apple Silicon)
 
+Synthèse illustrée pour non-initiés : [docs/rea-claude-mx870.html](docs/rea-claude-mx870.html).
+
 Pilote natif arm64 pour la MX870, écrit à partir de la rétro-ingénierie du pilote
 Windows 1.06 (voir [docs/protocole-mx870.md](docs/protocole-mx870.md)). Usage personnel.
 
