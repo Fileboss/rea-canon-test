@@ -2,7 +2,10 @@
 """Generate the MX870 PPD from libmx870's tables, so paper sizes, printable
 areas and media types stay identical in the driver and the encoder.
 
-Usage: gen_ppd.py FILTER_PATH > canon-mx870.ppd
+Usage: gen_ppd.py PAPERS_INC FILTER_PATH > canon-mx870.ppd
+
+PAPERS_INC is build/generated/papers.inc, generated from your copy of the
+Windows driver (see tools/extract_assets.sh).
 """
 import re
 import sys
@@ -23,12 +26,12 @@ PPD_NAMES = {  # PPD PageSize keyword for each libmx870 paper name
 }
 
 
-def tables():
+def tables(papers_inc):
     src = (LIB / 'tables.c').read_text()
     papers = re.findall(r'\{"([^"]+)",\s*"([^"]+)",\s*0x[0-9a-f]+,\s*(\d+),\s*(\d+)\}', src)
     media = re.findall(r'\{"([^"]+)",\s*"([^"]+)",\s*0x[0-9a-f]+,\s*0x[0-9a-f]+,\s*0x[0-9a-f]+,\s*(\d)\}', src)
     geo = {}
-    for line in (LIB / 'papers.inc').read_text().splitlines():
+    for line in Path(papers_inc).read_text().splitlines():
         nums = re.findall(r'-?\d+', line)
         if line.strip().startswith('{') and len(nums) == 8:
             w, l, x0, aw, l70, l118, bw, bl = map(int, nums)
@@ -40,8 +43,8 @@ def pt(v):
     return f'{v * 72 / 600:.2f}'
 
 
-def main(filter_path):
-    papers, media, geo = tables()
+def main(papers_inc, filter_path):
+    papers, media, geo = tables(papers_inc)
     out = []
     w = out.append
 
@@ -171,4 +174,6 @@ def main(filter_path):
 
 
 if __name__ == '__main__':
-    main(sys.argv[1] if len(sys.argv) > 1 else '/Library/Printers/Canon-MX870/Filter/rastertomx870')
+    if len(sys.argv) != 3:
+        sys.exit(__doc__)
+    main(sys.argv[1], sys.argv[2])

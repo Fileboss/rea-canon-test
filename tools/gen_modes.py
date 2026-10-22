@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate src/libmx870/modes.inc from extract_modes.py output.
+"""Generate build/generated/modes.inc from extract_modes.py output.
 
 Mode 7 records (extra slots 7..10, Photo Paper Pro II quality 4) are skipped:
 the meaning of their extra planes is not decoded yet.

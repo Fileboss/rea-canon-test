@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* IVEC job envelope, as sent by Gutenprint (https://gimp-print.sourceforge.io) for this model. */
 static const char xml_start[] =
   "<?xml version=\"1.0\" encoding=\"utf-8\" ?><cmd xmlns:ivec=\"http://www.canon.com/ns/cmd/2008/07/common/\">"
   "<ivec:contents><ivec:operation>StartJob</ivec:operation><ivec:param_set servicetype=\"print\">"

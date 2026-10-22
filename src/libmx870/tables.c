@@ -54,6 +54,10 @@ const mx870_media_t mx870_media[] = {
   {NULL, NULL, 0, 0, 0, 0}
 };
 
+/*
+ * modes.inc and papers.inc are generated at build time from the user's own
+ * copy of Canon's Windows driver (tools/extract_assets.sh), into build/generated.
+ */
 const mx870_mode_t mx870_modes[] = {
 #include "modes.inc"
 };

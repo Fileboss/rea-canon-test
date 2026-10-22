@@ -1,10 +1,26 @@
 # Canon MX870 — notes de rétro-ingénierie du pilote Windows
 
-Source analysée : `mp68-win-mx870-1_06-ea24.exe` (SHA-256 `464d5dcd…7e14`), pilote
-d'impression x86 v2.56.2.10 (INF du 29/05/2012). Les binaires et le code décompilé
-restent dans `vendor/` (ignoré par git) : ce document ne contient que des observations.
+Source analysée : `mp68-win-mx870-1_06-ea24.exe` (SHA-256 `464d5dcd…7e14`), *MX870 series
+MP Driver Ver.1.06 (Windows)* publié par Canon
+([asia.canon/en/support/0100462001](https://asia.canon/en/support/0100462001)), pilote
+d'impression x86 v2.56.2.10 (INF du 29/05/2012). Ni les binaires, ni le code décompilé, ni
+les tables extraites ne sont versionnés : ce document ne contient que des observations, et
+les tables (§4.4) sont régénérées par chacun depuis sa propre copie de l'installeur
+(`install.sh`, `tools/extract_assets.sh`).
 
 Légende : **[obs]** observé dans les octets/le pseudo-code, **[inf]** inférence, **[?]** inconnu.
+
+**Outils et références**
+
+| Outil / source | Usage ici |
+|---|---|
+| [REA](https://github.com/morluto/rea) piloté par [Claude Code](https://claude.com/product/claude-code) | inspection PE, ressources, recherche de chaînes, décompilation |
+| [Ghidra](https://github.com/NationalSecurityAgency/ghidra) 12.1 (+ [Temurin](https://adoptium.net) 25) | décompilation, via REA et en mode *headless* (export de tout le pseudo-code) |
+| [Hopper](https://www.hopperapp.com) | essayé en premier, abandonné (Python indisponible) |
+| [Gutenprint](https://gimp-print.sourceforge.io) | pilote libre pour des modèles Canon proches, utilisé pour recouper le sens des commandes |
+| [cups-bjnp](https://sourceforge.net/projects/cups-bjnp/) | implémentation libre de BJNP, cohérente avec §4.6 |
+| `unzip`, `tar` ([libarchive](https://www.libarchive.org)) de macOS | extraction du [WinZip Self-Extractor](https://www.winzip.com/en/product/self-extractor/) et des CAB |
+| [PackBits](https://en.wikipedia.org/wiki/PackBits) | algorithme de compression reconnu dans `cnmop9z.dll` |
 
 ## 1. Emballage
 
@@ -190,7 +206,7 @@ Implémentation : `src/libbjnp` + outil `mx870-bjnp` (découverte, identifiant, 
 
 ## 5. Implémentation et points à valider sur l'imprimante
 
-Implémenté dans `src/libmx870` (encodeur), `src/cups` (filtre CUPS + PPD généré).
+Implémenté dans `src/libmx870` (encodeur), `src/cups` (filtre [CUPS](https://openprinting.github.io/cups/) + PPD généré), `src/libbjnp` et `src/app` (application [PAPPL](https://github.com/michaelrsweet/pappl)).
 Les flux produits sont validés par `tools/bjdump.py` (décodeur indépendant) ; **aucun n'a encore
 été envoyé à une MX870 réelle**. Choix non confirmés par les octets Windows, à vérifier en premier
 si l'imprimante rejette un travail :

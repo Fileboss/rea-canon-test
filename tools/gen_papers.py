@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate src/libmx870/papers.inc: exact ESC (p geometry per paper size,
+"""Generate build/generated/papers.inc: exact ESC (p geometry per paper size,
 taken from the ESC (p templates of the user's copy of cnm_0367.dll.
 
 Output per paper (1/600 inch): width, length, bordered x/width,
